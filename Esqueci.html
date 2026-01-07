@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="estilos/media-query.css">
     <link rel="stylesheet" href="estilos/mobile.css" media="screnn and (max-width: 580px) ">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        .botao-acao {
+            background-color: #FF8C00;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .botao-acao:hover {
+            background-color: #8e4e00d0;
+        }
+    </style>
     <script type="text/javascript">
          (function(){
              emailjs.init("ddVJeJgn0wjNgcfsO");
@@ -15,6 +30,37 @@
     </script>
 </head>
 <body>
-    
+    <main>
+        <section id="login">
+            <div id="formulario" style="width: 100%; float: none;">
+                <h1>Recuperar Senha</h1>
+
+                <div id="etapa1">
+                    <p style="margin: 20px;">Digite seu e-mail cadastrado para receber o código.</p>
+                    <div class="campo">
+                        <input type="email" id="emailRecuperacao" placeholder="Seu e-mail">
+                    </div>
+                    <button onclick="enviarCodigo()" class="botao-acao">Enviar Código</button>
+                </div>
+
+                <div id="etapa2" style="display: none;">
+                    <p>Código enviado! Verifique seu e-mail.</p>
+                    <div class="campo">
+                        <input type="number" id="codigoDigitado" placeholder="Código de 4 digitos">
+                    </div>
+                    <div class="campo">
+                        <input type="password" id="novaSenha" placeholder="Nova senha">
+                    </div>
+                    <button onclick="verificarEAlterar()">
+                        Redefinir Senha
+                    </button>
+                </div>
+            </div>
+
+            <br>
+            <a href="login.html" class="botao">Voltar ao Login</a>
+        </section>
+    </main>
+    <script src="JavaScript/esqueci.js"></script>
 </body>
 </html>
