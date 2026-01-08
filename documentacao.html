@@ -15,22 +15,70 @@
     </header>
     <section>
         <h2 id="principal">Departamentos:</h2>
-        <ul>
-            <li><a href="suporte/suporteTec.html"><strong>Suporte</strong></a></li>
-            <li><a href="atendimento/atendimento.html"><strong>Atendimento</strong></a></li>
-            <li><a href="financeiro/financeiro.html"><strong>Financeiro</strong></a></li>
-            <li><a href="estoque/estoque.html"><strong>Estoque</strong></a></li>
-            <li><a href="feedback/feedback.html"><strong>Feedback</strong></a></li>
-            <li><a href="marketing/marketing.html"><strong>Marketing</strong></a></li>
-            <li><a href="cobranca/cobranca.html"><strong>Cobrança</strong></a></li>
-            <li><a href="NOC/noc.html"><strong>NOC</strong></a></li>
-            <li><a href="OperacaoCampo/operacaoCampo.html"><strong>Operação de Campo</strong></a></li>
-            <li><a href="ConstrucaoRede/construcaoRedes.html"><strong>Construção de Redes</strong></a></li>
-            <li><a href="comecialVendas/comercialVendas.html"><strong>Comercial e Vendas</strong></a></li>
-            <li><a href="gestaoExecutiva/gestaoExecutiva.html"><strong>Gestão Executiva</strong></a></li>
-            <li><a href="limpeza/limpeza.html"><strong>Limpeza</strong></a></li>
-            <li><a href="filiais/filiais.html"><strong>Filiais</strong></a></li>
+        <ul id="listaLinks">
+            <li data-permissao="suporte"><a href="suporte/suporteTec.html"><strong>Suporte</strong></a></li>
+            <li data-permissao="atendimento"><a href="atendimento/atendimento.html"><strong>Atendimento</strong></a></li>
+            <li data-permissao="financeiro"><a href="financeiro/financeiro.html"><strong>Financeiro</strong></a></li>
+            <li data-permissao="estoque"><a href="estoque/estoque.html"><strong>Estoque</strong></a></li>
+            <li data-permissao="feedback"><a href="feedback/feedback.html"><strong>Feedback</strong></a></li>
+            <li data-permissao="marketing"><a href="marketing/marketing.html"><strong>Marketing</strong></a></li>
+            <li data-permissao="cobranca"><a href="cobranca/cobranca.html"><strong>Cobrança</strong></a></li>
+            <li data-permissao="noc"><a href="NOC/noc.html"><strong>NOC</strong></a></li>
+            <li data-permissao="operacao"><a href="OperacaoCampo/operacaoCampo.html"><strong>Operação de Campo</strong></a></li>
+            <li data-permissao="construcao"><a href="ConstrucaoRede/construcaoRedes.html"><strong>Construção de Redes</strong></a></li>
+            <li data-permissao="comercial"><a href="comecialVendas/comercialVendas.html"><strong>Comercial e Vendas</strong></a></li>
+            <li data-permissao="executiva"><a href="gestaoExecutiva/gestaoExecutiva.html"><strong>Gestão Executiva</strong></a></li>
+            <li data-permissao="limpeza"><a href="limpeza/limpeza.html"><strong>Limpeza</strong></a></li>
+            <li data-permissao="filiais"><a href="filiais/filiais.html"><strong>Filiais</strong></a></li>
         </ul>
     </section>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const emailLogado = localStorage.getItem('usuarioLogado');
+        
+        if (!emailLogado) {
+            window.location.href = 'login/login.html';
+            return;
+        }
+
+        const rawDepto = localStorage.getItem(`depto_${emailLogado}`) || "";
+        const meusDepartamentos = rawDepto.split(','); 
+
+        const todosItens = document.querySelectorAll('#listaLinks li');
+        
+        // --- NOVIDADE AQUI: Variáveis para contar ---
+        let linksVisiveis = 0;
+        let ultimoLinkEncontrado = "";
+
+        todosItens.forEach(item => {
+            const permissaoNecessaria = item.getAttribute('data-permissao');
+            let mostrar = false;
+
+            // Lógica de verificação
+            if (meusDepartamentos.includes('admin')) {
+                mostrar = true;
+            } else if (meusDepartamentos.includes(permissaoNecessaria)) {
+                mostrar = true;
+            }
+
+            // Aplica a visibilidade e conta
+            if (mostrar) {
+                item.style.display = 'block';
+                linksVisiveis++; // Aumenta a contagem
+                // Guarda o link desse item (o href do <a>)
+                ultimoLinkEncontrado = item.querySelector('a').getAttribute('href');
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // --- O PULO DO GATO ---
+        // Se só tiver exatamente 1 link visível...
+        if (linksVisiveis === 1) {
+            // ...redireciona direto para ele!
+            window.location.href = ultimoLinkEncontrado;
+        }
+    });
+</script>
 </body>
 </html>

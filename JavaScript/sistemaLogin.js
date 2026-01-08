@@ -1,51 +1,66 @@
-function fazerCadastro(event) {
-    event.preventDefault(); // Impede a página de recarregar
+// --- FUNÇÃO DE CADASTRO (Conectada ao Node.js) ---
+async function fazerCadastro(event) {
+    event.preventDefault();
 
     const nome = document.getElementById('inome').value;
     const email = document.getElementById('iemail').value;
     const senha = document.getElementById('isenha').value;
 
     if (!email || !senha || !nome) {
-        alert("Por favor, preencha o e-mail e a senha para cadastrar.");
+        alert("Preencha todos os campos!");
         return;
     }
 
-    // Verifica se já existe uma senha salva para este email
-    if (localStorage.getItem(`senha_${email}`)) {
-        alert("Este usuário já existe! Clique em Entrar.");
-        return;
+    try {
+        // Envia os dados para o seu servidor
+        const resposta = await fetch('http://localhost:3000/cadastro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email, senha })
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            alert("Conta criada! Suas informações estão salvas no servidor.");
+            window.location.href = 'login.html';
+        } else {
+            alert(dados.mensagem); // Ex: "E-mail já cadastrado"
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao conectar com o servidor. Verifique se o Node.js está rodando.");
     }
-
-    // Salva a conta
-    localStorage.setItem(`senha_${email}`, senha);
-    localStorage.setItem(`nome_${email}`, nome);
-
-    alert("Conta criada com sucesso! Agora clique em Entrar.");
-    window.location.href = 'login.html';
 }
 
-function fazerLogin(event) {
-    event.preventDefault(); // Impede a página de recarregar
+// --- FUNÇÃO DE LOGIN (Conectada ao Node.js) ---
+async function fazerLogin(event) {
+    event.preventDefault();
 
     const email = document.getElementById('ilogin').value;
     const senha = document.getElementById('isenha').value;
 
-    // Busca a senha salva no navegador
-    const senhaSalva = localStorage.getItem(`senha_${email}`);
+    try {
+        const resposta = await fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
+        });
 
-    if (senha === senhaSalva) {
-        // SUCESSO!
-        // 1. Salva quem está logado agora
-        localStorage.setItem('usuarioLogado', email);
-        
-        // 2. Redireciona para o arquivo documento
-        window.location.href = '../documentacao.html'; 
-    } else {
-        // FRACASSO
-        if (!senhaSalva) {
-            alert("Usuário não encontrado. Clique em 'Cadastrar Nova Conta'.");
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            // Sucesso!
+            localStorage.setItem('usuarioLogado', email);
+            localStorage.setItem(`nome_${email}`, dados.nome); // Salva o nome vindo do banco
+            localStorage.setItem(`depto_${email}`, dados.departamento);
+            window.location.href = '../documentacao.html';
         } else {
-            alert("Senha incorreta!");
+            alert(dados.mensagem); // Ex: "Senha incorreta"
         }
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao conectar com o servidor.");
     }
 }

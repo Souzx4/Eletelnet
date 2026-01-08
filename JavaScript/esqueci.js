@@ -1,48 +1,62 @@
-let codigoGerado = 0; // Variavel global
-let emailAlvo = "";   // O email que estamos recuperando
+let codigoGerado = 0;
+let emailAlvo = "";
 
-function enviarCodigo() {
+// 1. FUNÇÃO PARA ENVIAR O CÓDIGO
+async function enviarCodigo() {
     const email = document.getElementById("emailRecuperacao").value;
 
-    // 1. Verificar se o usuario existe no LocalStorage
-    if (!localStorage.getItem(`senha_${email}`)) {
-        alert("Este email não possui cadastro.");
+    if (!email) {
+        alert("Digite um e-mail.");
         return;
     }
 
-    // 2. Gerar código (Math.random gera entre 0 e 1, * 9000 + 1000 garante 4 dígitos)
-    codigoGerado = Math.floor(1000 + Math.random() * 9000);
-    emailAlvo = email;
-
-    console.log(`Código de recuperação (Debug): ${codigoGerado}`);
-
-    // 3. Preparar parâmetros para o EmailJS
-    const parametros = {
-        to_email: email,
-        codigo: codigoGerado,
-        time: new Date().toLocaleTimeString('pt-br', { hour: '2-digit', minute: '2-digit' })
-    };
-
-    // 4. Enviar email
-    emailjs.send("service_uyxwnpj", "template_5k9e6ke", parametros)
-        .then(function(response) {
-            alert("Código de recuperação enviado com sucesso! Verifique seu email.");
-            // Troca de tela apenas se der sucesso
-            document.getElementById('etapa1').style.display = 'none';
-            document.getElementById('etapa2').style.display = 'block';
-        })
-        .catch(function(error) {
-            console.error("Erro ao enviar email:", error);
-            alert("Erro ao enviar o código. Tente novamente mais tarde.");
+    // --- NOVA PARTE: Pergunta ao servidor se o e-mail existe ---
+    try {
+        const resposta = await fetch('http://localhost:3000/verificar-usuario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
         });
+
+        if (!resposta.ok) {
+            alert("Este e-mail não possui cadastro no sistema.");
+            return;
+        }
+
+        // Se o servidor disse que existe, continuamos...
+        codigoGerado = Math.floor(1000 + Math.random() * 9000);
+        emailAlvo = email;
+
+        console.log(`Código de recuperação (Debug): ${codigoGerado}`);
+
+        const parametros = {
+            to_email: email,
+            codigo: codigoGerado,
+            time: new Date().toLocaleTimeString('pt-br', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        emailjs.send("service_uyxwnpj", "template_5k9e6ke", parametros)
+            .then(function(response) {
+                alert("Código enviado! Verifique seu e-mail.");
+                document.getElementById('etapa1').style.display = 'none';
+                document.getElementById('etapa2').style.display = 'block';
+            })
+            .catch(function(error) {
+                console.error("Erro emailjs:", error);
+                alert("Erro ao enviar e-mail. (Veja o console para detalhes)");
+            });
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro de conexão com o servidor. O Node.js está ligado?");
+    }
 }
 
-// ESTA FUNÇÃO PRECISA FICAR FORA DA DE CIMA
-function verificarEAlterar() {
+// 2. FUNÇÃO PARA TROCAR A SENHA
+async function verificarEAlterar() {
     const inputCodigo = document.getElementById('codigoDigitado').value;
     const novaSenha = document.getElementById('novaSenha').value;
 
-    // Verificar se o código bate (CORRIGIDO: codigoGerado com G maiúsculo)
     if (parseInt(inputCodigo) === codigoGerado) {
         
         if (novaSenha.length < 4) {
@@ -50,12 +64,30 @@ function verificarEAlterar() {
             return;
         }
 
-        // Alterar a senha no LocalStorage
-        localStorage.setItem(`senha_${emailAlvo}`, novaSenha);
+        // --- NOVA PARTE: Manda a nova senha para o servidor ---
+        try {
+            const resposta = await fetch('http://localhost:3000/redefinir-senha', {
+                method: 'POST', // Enviamos os dados
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: emailAlvo, 
+                    novaSenha: novaSenha 
+                })
+            });
 
-        alert("Senha alterada com sucesso! Faça login com a nova senha.");
-        window.location.href = 'login.html';
+            if (resposta.ok) {
+                alert("Senha alterada com sucesso! O banco de dados foi atualizado.");
+                window.location.href = 'login.html';
+            } else {
+                alert("Erro ao salvar nova senha no servidor.");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao conectar com o servidor.");
+        }
+
     } else {
-        alert("Código incorreto! Tente novamente.");
+        alert("Código incorreto!");
     }
 }
