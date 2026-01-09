@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Geral - Funcionários</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        
+        h1 { text-align: center; color: #333; }
+        
+        .botoes-topo { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .btn { padding: 10px 20px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold; }
+        .btn-add { background-color: #28a745; }
+        .btn-edit { background-color: #007bff; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: #333; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+
+        .btn-excluir { background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .btn-excluir:hover { background-color: #c82333; }
+    </style>
+    <script>
+    // --- SEGURANÇA DO PAINEL ---
+    (function() {
+        const emailLogado = localStorage.getItem('usuarioLogado');
+        
+        // 1. Se não tiver ninguém logado, manda pro login
+        if (!emailLogado) {
+            alert("Você precisa fazer login!");
+            // Ajuste: caminho absoluto para garantir que ache a pasta login dentro de public
+            window.location.href = '/login/login.html';
+            return;
+        }
+
+        // 2. Busca o departamento da pessoa
+        const depto = localStorage.getItem(`depto_${emailLogado}`);
+
+        // 3. Se NÃO TIVER 'admin' na lista de permissões, chuta fora
+        if (!depto || !depto.includes('admin')) {
+            alert("ACESSO NEGADO! Área restrita apenas para a Gestão.");
+            // Se documentacao.html estiver na pasta public, use a barra na frente
+            window.location.href = '/documentacao.html'; 
+            return;
+        }
+    })();
+</script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gestão de Funcionários</h1>
+
+        <div class="botoes-topo">
+            <a href="painel-admin.html" class="btn btn-add">+ Novo Usuário</a>
+            <a href="editar.html" class="btn btn-edit">Editar Permissões</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Departamentos</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função que carrega a lista assim que abre a página
+        async function carregarUsuarios() {
+            try {
+                // CORREÇÃO: Caminho relativo (funciona local e IP fixo)
+                const resposta = await fetch('/usuarios');
+                const usuarios = await resposta.json();
+
+                const tabela = document.getElementById('tabela-corpo');
+                tabela.innerHTML = ''; // Limpa antes de preencher
+
+                usuarios.forEach(usuario => {
+                    const linha = document.createElement('tr');
+                    
+                    // Cria as colunas
+                    linha.innerHTML = `
+                        <td>${usuario.nome}</td>
+                        <td>${usuario.email}</td>
+                        <td>${usuario.departamento || 'comum'}</td>
+                        <td>
+                            <button class="btn-excluir" onclick="deletarUsuario('${usuario.email}')">Excluir</button>
+                        </td>
+                    `;
+                    tabela.appendChild(linha);
+                });
+
+            } catch (error) {
+                console.error(error); 
+                alert("Erro ao carregar lista. O servidor está ligado?");
+            }
+        }
+
+        // Função para deletar
+        async function deletarUsuario(email) {
+            if (confirm(`Tem certeza que deseja demitir/remover ${email}?`)) {
+                try {
+                    // CORREÇÃO: Caminho relativo
+                    const resposta = await fetch('/usuario', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+
+                    if (resposta.ok) {
+                        alert("Usuário removido!");
+                        carregarUsuarios(); // Recarrega a lista
+                    } else {
+                        alert("Erro ao remover.");
+                    }
+                } catch (error) {
+                    alert("Erro de conexão.");
+                }
+            }
+        }
+
+        // Chama a função ao abrir
+        carregarUsuarios();
+    </script>
+
+</body>
+</html>

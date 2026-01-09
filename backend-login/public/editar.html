@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Permissões</title>
+    <style>
+        body { font-family: sans-serif; background-color: #333; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        form { background-color: #fff; color: black; padding: 20px; border-radius: 8px; width: 400px; }
+        input[type="email"] { width: 100%; padding: 10px; margin-bottom: 15px; }
+        h2 { text-align: center; color: #0044ff; }
+        
+        .opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .opcao { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        
+        button { width: 100%; padding: 10px; background-color: #0044ff; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 5px;}
+        button:hover { background-color: #0033cc; }
+        .voltar { background-color: gray; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <form onsubmit="atualizarPermissoes(event)">
+        <h2>GERENCIAR CARGOS</h2>
+        <p>Digite o e-mail do funcionário para alterar os cargos:</p>
+        
+        <input type="email" id="emailAlvo" placeholder="E-mail do funcionário" required>
+
+        <p>Selecione os acessos permitidos:</p>
+        <div class="opcoes">
+            <label class="opcao"><input type="checkbox" value="admin"> Admin (Total)</label>
+            <label class="opcao"><input type="checkbox" value="suporte"> Suporte</label>
+            <label class="opcao"><input type="checkbox" value="atendimento"> Atendimento</label>
+            <label class="opcao"><input type="checkbox" value="financeiro"> Financeiro</label>
+            <label class="opcao"><input type="checkbox" value="estoque"> Estoque</label>
+            <label class="opcao"><input type="checkbox" value="feedback"> Feedback</label>
+            <label class="opcao"><input type="checkbox" value="marketing"> Marketing</label>
+            <label class="opcao"><input type="checkbox" value="cobranca"> Cobrança</label>
+            <label class="opcao"><input type="checkbox" value="noc"> NOC</label>
+            <label class="opcao"><input type="checkbox" value="operacao"> Operação Campo</label>
+            <label class="opcao"><input type="checkbox" value="construcao"> Const. Redes</label>
+            <label class="opcao"><input type="checkbox" value="comercial"> Comercial</label>
+            <label class="opcao"><input type="checkbox" value="executiva"> Gestão Exec.</label>
+            <label class="opcao"><input type="checkbox" value="limpeza"> Limpeza</label>
+            <label class="opcao"><input type="checkbox" value="filiais"> Filiais</label>
+        </div>
+        
+        <button type="submit">SALVAR NOVOS CARGOS</button>
+        <button type="button" class="voltar" onclick="window.location.href='painel-admin.html'">Voltar para Cadastro</button>
+    </form>
+
+    <script>
+        async function atualizarPermissoes(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('emailAlvo').value;
+            
+            // Pega todos os checkboxes marcados
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            let listaPermissoes = [];
+            checkboxes.forEach((checkbox) => {
+                listaPermissoes.push(checkbox.value);
+            });
+
+            // Transforma em uma string separada por vírgula (ex: "suporte,financeiro")
+            const stringPermissoes = listaPermissoes.join(',');
+
+            if(listaPermissoes.length === 0) {
+                alert("Selecione pelo menos uma permissão!");
+                return;
+            }
+
+            try {
+                // CORREÇÃO AQUI: Link relativo (funciona em todo lugar)
+                const resposta = await fetch('/editar-usuario', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: email, 
+                        novosDepartamentos: stringPermissoes 
+                    })
+                });
+
+                if (resposta.ok) {
+                    alert(`Sucesso! O usuário ${email} agora tem acesso a: \n${stringPermissoes}`);
+                } else {
+                    const erro = await resposta.json();
+                    alert("Erro: " + erro.mensagem);
+                }
+            } catch (error) {
+                alert("Erro: O servidor Node.js precisa estar ligado!");
+            }
+        }
+    </script>
+</body>
+</html>

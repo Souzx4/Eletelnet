@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Dono - Criar Usuário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background-color: #333; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        form { background-color: #fff; color: black; padding: 20px; border-radius: 8px; width: 90%; max-width: 350px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        h2 { text-align: center; color: red; }
+        button { width: 100%; padding: 10px; background-color: red; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; border-radius: 5px;}
+        button:hover { background-color: darkred; }
+        .btn-voltar { background-color: #555; }
+        .btn-voltar:hover { background-color: #333; }
+    </style>
+</head>
+<body>
+
+    <form onsubmit="cadastrarUsuario(event)">
+        <h2>ÁREA RESTRITA</h2>
+        <p>Cadastrar novo funcionário:</p>
+        
+        <input type="text" id="nome" placeholder="Nome do Usuário" required>
+        <input type="email" id="email" placeholder="E-mail de Acesso" required>
+        <input type="text" id="senha" placeholder="Senha Inicial" required>
+
+        <label style="display:block; margin-top:10px; font-weight:bold;">Departamento de Acesso:</label>
+        <select id="departamento" required>
+            <option value="admin">Admin (Vê tudo)</option>
+            <option value="suporte">Suporte</option>
+            <option value="atendimento">Atendimento</option>
+            <option value="financeiro">Financeiro</option>
+            <option value="estoque">Estoque</option>
+            <option value="feedback">Feedback</option>
+            <option value="marketing">Marketing</option>
+            <option value="cobranca">Cobrança</option>
+            <option value="noc">NOC</option>
+            <option value="operacao">Operação de Campo</option>
+            <option value="construcao">Construção de Redes</option>
+            <option value="comercial">Comercial e Vendas</option>
+            <option value="executiva">Gestão Executiva</option>
+            <option value="limpeza">Limpeza</option>
+            <option value="filiais">Filiais</option>
+        </select>
+        
+        <button type="submit">CRIAR ACESSO</button>
+        <button type="button" class="btn-voltar" onclick="window.history.back()">Voltar</button>
+    </form>
+
+    <script>
+        async function cadastrarUsuario(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const departamento = document.getElementById('departamento').value; 
+
+            try {
+                // CORREÇÃO AQUI: Usando caminho relativo (funciona em localhost e IP fixo)
+                const resposta = await fetch('/cadastro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha, departamento })
+                });
+
+                if (resposta.ok) {
+                    alert(`Sucesso! Usuário ${nome} cadastrado no setor ${departamento}.`);
+                    // Limpa os campos
+                    document.getElementById('nome').value = '';
+                    document.getElementById('email').value = '';
+                    document.getElementById('senha').value = '';
+                } else {
+                    const erro = await resposta.json();
+                    alert("Erro: " + erro.mensagem);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro: O servidor Node.js precisa estar ligado!");
+            }
+        }
+    </script>
+</body>
+</html>

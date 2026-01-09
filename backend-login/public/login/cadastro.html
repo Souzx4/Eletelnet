@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar</title>
+    <link rel="stylesheet" href="../estilos/login.css">
+    <link rel="stylesheet" href="../estilos/media-query.css">
+    <link rel="stylesheet" href="../estilos/mobile.css" media="screen and (max-width: 580px) ">
+    <style>
+        main{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f7f6;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        #cadastro {
+            max-width: 400px;
+            background-color: #ccc;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #cadastro h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"], input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #FF8C00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover, input[type="button"]:hover {
+            background-color: #000000ad;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section id="cadastro">
+            <h1>Cadastro de Nova Conta</h1>
+            <p>Preencha o formulário abaixo para criar uma nova conta.</p>
+
+            <form onsubmit="fazerCadastro(event)" autocomplete="on">
+                <div class="campo">
+                    <label for="nome">Nome Completo:</label>
+                    <input type="text" name="nome" id="inome" placeholder="Seu Nome Completo" required autocomplete="name">
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail:</label>
+                    <input type="email" name="email" id="iemail" placeholder="Seu E-mail" required autocomplete="email">
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha (min 8 dig):</label>
+                    <input type="password" name="senha" id="isenha" placeholder="Senha" required minlength="8" autocomplete="new-password">
+                </div>
+
+                <input type="submit" value="Cadastrar">
+
+                <input type="button" value="Voltar ao Login" onclick="window.location.href='login.html'">
+            </form>
+        </section>
+    </main>
+    <script src="../JavaScript/sistemaLogin.js"></script>
+</body>
+</html>

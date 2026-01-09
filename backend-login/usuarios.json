@@ -1,0 +1,26 @@
+[
+  {
+    "nome": "O Dono",
+    "email": "admin@teste.com",
+    "senha": "senhaforte123",
+    "departamento": "admin"
+  },
+  {
+    "nome": "Funcionario 1",
+    "email": "joao@empresa.com",
+    "senha": "123",
+    "departamento": "comum"
+  },
+  {
+    "nome": "gilmar",
+    "email": "gilmarsousa717@gmail.com",
+    "senha": "12345678",
+    "departamento": "admin"
+  },
+  {
+    "nome": "gilmar",
+    "email": "tvcorynga@gmail.com",
+    "senha": "20/12/1993",
+    "departamento": "feedback,operacao"
+  }
+]
